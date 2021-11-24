@@ -1,9 +1,16 @@
-import React, { useRef, useState } from "react";
+import React, { useRef, useState, useEffect } from "react";
 
 const SimpleInput = (props) => {
   const nameInputRef = useRef();
   const [enteredName, setEnteredName] = useState("");
-  const [formIsValid, setFormIsValid] = useState(true);
+  const [enteredNameIsValid, setEnteredNameIsValid] = useState(false);
+  const [enteredNameTouched, setEnteredNameTouched] = useState(false);
+
+  useEffect(()=>{
+    if(enteredNameIsValid){
+      console.log("Name Input is valid")
+    }
+  },[enteredNameIsValid])
 
   const nameInputChangeHandler = (event) => {
     setEnteredName(event.target.value);
@@ -11,8 +18,10 @@ const SimpleInput = (props) => {
 
   const formSubmissionHandler = (event) => {
     event.preventDefault();
+    setEnteredNameTouched(true)
+
     if (enteredName.trim("") === "") {
-      setFormIsValid(false);
+      setEnteredNameIsValid(false)
       return;
     }
     console.log(enteredName);
@@ -23,9 +32,14 @@ const SimpleInput = (props) => {
     //shouldn't do this, as it is directly manipulating the dom
     // enteredValue.current.value = ""
     setEnteredName("");
+    setEnteredNameIsValid(true)
   };
 
-  const nameInputClasses = formIsValid ? "form-control" : "form-control invalid"
+  const nameInputIsInvalid = !enteredNameIsValid && enteredNameTouched
+
+  const nameInputClasses = nameInputIsInvalid
+    ? "form-control invalid"
+    : "form-control";
 
   return (
     <form onSubmit={formSubmissionHandler}>
@@ -38,7 +52,7 @@ const SimpleInput = (props) => {
           onChange={nameInputChangeHandler}
           value={enteredName}
         />
-        {!formIsValid && <p className="error-text">Name must not be empty.</p>}
+        {nameInputIsInvalid && <p className="error-text">Name must not be empty.</p>}
       </div>
       <div className="form-actions">
         <button>Submit</button>
